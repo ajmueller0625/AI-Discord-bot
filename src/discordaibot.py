@@ -25,12 +25,12 @@ class DiscordAIBot:
         # Set up intents for the bot
         intents = Intents.default()
         intents.message_content = True
-        bot = commands.Bot(command_prefix="!", intents=intents, help_command=None, case_insensitive=True)
+        bot = commands.Bot(command_prefix='!', intents=intents, help_command=None, case_insensitive=True)
 
         @bot.event
         async def on_ready():
             # Print a message when the bot is ready
-            print(f"{bot.user} is ready")
+            print(f'{bot.user} is ready')
 
             # Loop through all guilds (servers) the bot is in
             for guild in bot.guilds:
@@ -40,11 +40,11 @@ class DiscordAIBot:
                     if channel.permissions_for(guild.me).send_messages:
                         # Create a welcome embed
                         welcome_embed = Embed(
-                            title="AI Tutor Bot Online",
-                            description="Hello, how can I assist you today? Please type `!help` to see the available commands.",
+                            title='AI Tutor Bot Online',
+                            description='Hello, how can I assist you today? Please type `!help` to see the available commands.',
                             color=self.bot_color
                         )
-                        welcome_embed.set_footer(text="AI Tutor | Ready to help with AI topics")
+                        welcome_embed.set_footer(text='AI Tutor | Ready to help with AI topics')
                         
                         await channel.send(embed=welcome_embed)
                         break
@@ -64,16 +64,16 @@ class DiscordAIBot:
                     else:
                         # If the command is not found, send an embed indicating it doesn't exist
                         error_embed = Embed(
-                            title="Command Not Found",
-                            description="This command does not exist, please try again!",
+                            title='Command Not Found',
+                            description='This command does not exist, please try again!',
                             color=Color.red()
                         )
                         await message.channel.send(embed=error_embed)
                 except KeyError:
                     # Handle any errors that may occur while fetching data
                     error_embed = Embed(
-                        title="Error",
-                        description="An error occurred while processing your request.",
+                        title='Error',
+                        description='An error occurred while processing your request.',
                         color=Color.red()
                     )
                     await message.channel.send(embed=error_embed)
@@ -85,25 +85,37 @@ class DiscordAIBot:
         async def help(ctx):
             # Create a help embed
             help_embed = Embed(
-                title="AI Tutor Bot Commands",
-                description="Here are the available commands for the AI Tutor Bot:",
+                title='AI Tutor Bot Commands',
+                description='Here are the available commands for the AI Tutor Bot:',
                 color=self.bot_color
             )
             
             # Add fields for each command
             help_embed.add_field(
-                name="!aihelp [question]",
-                value="Ask the AI a question about artificial intelligence topics.",
+                name='!aihelp [question]',
+                value='Ask the AI a question about artificial intelligence topics.',
                 inline=False
             )
             
             help_embed.add_field(
-                name="!help",
-                value="Show this help message with available commands.",
+                name='!help',
+                value='Show this help message with available commands.',
+                inline=False
+            )
+
+            help_embed.add_field(
+                name='!shutdown',
+                value='Shutdown the bot.(Only for admins)',
+                inline=False
+            )
+
+            help_embed.add_field(
+                name='!restart',
+                value='Restart the bot.(Only for admins)',
                 inline=False
             )
             
-            help_embed.set_footer(text="AI Tutor Bot | Helping you learn about AI")
+            help_embed.set_footer(text='AI Tutor Bot | Helping you learn about AI')
             
             await ctx.send(embed=help_embed)
 
@@ -137,8 +149,8 @@ class DiscordAIBot:
                 
             # For longer messages, split into multiple embeds
             processing_embed = Embed(
-                title="Processing Long Answer",
-                description="The answer is quite detailed, so I'll split it into multiple parts:",
+                title='Processing Long Answer',
+                description='The answer is quite detailed, so I\'ll split it into multiple parts:',
                 color=self.bot_color
             )
             await ctx.send(embed=processing_embed)
@@ -147,8 +159,8 @@ class DiscordAIBot:
             if is_similar and similarity is not None:
                 # Create a separate embed for the similarity notice that will appear first
                 similarity_embed = Embed(
-                    title="Similar Question Found",
-                    description=f"We found a similar question in our database with {similarity*100:.2f}% similarity.",
+                    title='Similar Question Found',
+                    description=f'We found a similar question in our database with {similarity*100:.2f}% similarity.',
                     color=Color.green()
                 )
                 await ctx.send(embed=similarity_embed)
@@ -159,11 +171,11 @@ class DiscordAIBot:
             # Send each chunk as a separate embed
             for i, chunk in enumerate(chunks):
                 part_embed = Embed(
-                    title=f"{title} (Part {i+1}/{len(chunks)})",
+                    title=f'{title} (Part {i+1}/{len(chunks)})',
                     description=chunk,
                     color=self.bot_color
                 )
-                part_embed.set_footer(text=f"Part {i+1} of {len(chunks)}")
+                part_embed.set_footer(text=f'Part {i+1} of {len(chunks)}')
                 await ctx.send(embed=part_embed)
 
         # Define the aihelp command
@@ -171,8 +183,8 @@ class DiscordAIBot:
         async def aihelp(ctx, *, question: str):
             # Send a processing message
             processing_embed = Embed(
-                title="Processing Your Question",
-                description="Please wait while I find the best answer for you...",
+                title='Processing Your Question',
+                description='Please wait while I find the best answer for you...',
                 color=self.bot_color
             )
             await ctx.send(embed=processing_embed)
@@ -197,8 +209,8 @@ class DiscordAIBot:
                     await send_embed_message(ctx, "AI Tutor Answer", answer)
                 else:
                     off_topic_embed = Embed(
-                        title="Off-Topic Question",
-                        description="Please ask a question that is related to AI topics only.",
+                        title='Off-Topic Question',
+                        description='Please ask a question that is related to AI topics only.',
                         color=Color.orange()
                     )
                     await ctx.send(embed=off_topic_embed)
@@ -209,8 +221,8 @@ class DiscordAIBot:
         async def shutdown(ctx):
             # Create a shutdown embed
             shutdown_embed = Embed(
-                title="Bot Shutdown",
-                description="Shutting down the bot...",
+                title='Bot Shutdown',
+                description='Shutting down the bot...',
                 color=Color.dark_red()
             )
             await ctx.send(embed=shutdown_embed)
@@ -222,8 +234,8 @@ class DiscordAIBot:
         async def restart(ctx):
             # Create a restart embed
             restart_embed = Embed(
-                title="Bot Restart",
-                description="Restarting the bot...",
+                title='Bot Restart',
+                description='Restarting the bot...',
                 color=Color.dark_green()
             )
             await ctx.send(embed=restart_embed)

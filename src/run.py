@@ -11,6 +11,7 @@ def main():
     # Initialize the logger
     logger = get_logger()
     logger.info('Starting the AI Tutor Bot...')
+    
     try:
         # Load environment variables
         load_dotenv()
@@ -71,7 +72,7 @@ def main():
             logger.error(f'Error initializing the bot: {str(e)}')
             logger.error(traceback.format_exc())
             sys.exit(1)
-            
+
     except Exception as e:
         if 'logger' in locals():
             logger.critical(f'Critical error in main function: {str(e)}')
