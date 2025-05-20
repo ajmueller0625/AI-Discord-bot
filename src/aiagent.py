@@ -1,30 +1,53 @@
-import os
 import torch
-from dotenv import load_dotenv
-from sqlalchemy.orm import Session
-from sqlalchemy import select
-from pgvector.sqlalchemy import cosine_distance
-from transformers import AutoTokenizer, AutoModel, pipeline, BitsAndBytesConfig
-from sentence_transformers import SentenceTransformer
+from transformers import AutoTokenizer, pipeline, BitsAndBytesConfig
 from huggingface_hub import login
-from models import Question, Answer
-
-load_dotenv()
 
 class AIAgent:
-    def __init__(self, db_session: Session):
+    def __init__(self, huggingface_token: str, llm_model: str):
         ''' initialize the AIAgent with the necessary models and parameters '''
-        # Initialize database connection
-        self.db_session = db_session
+        
+        # Initialize the persona and filtering instructions
+        self.persona = '''
+        You are an AI tutor specializing in artificial intelligence courses. 
+        Provide clear, concise, and accurate answers to questions about AI topics.
+        Base your answers on established AI knowledge.
+        Be educational and informative.
+        '''
+
+        self.filtering_instructions = '''
+        IMPORTANT INSTRUCTION: You are a specialized AI tutor that ONLY answers questions about artificial intelligence, 
+        machine learning, deep learning, neural networks, and closely related technical AI topics.
+        
+        Follow these rules exactly:
+        1. First, evaluate if the question is specifically about AI technology, methods, concepts, or applications.
+        2. If the question is not clearly about AI, respond ONLY with the exact text: "NOT_AI_TOPIC"
+        3. If you're unsure if a topic is AI-related, err on the side of caution and respond with "NOT_AI_TOPIC"
+        
+        AI-related topics include but are not limited to:
+        - Machine learning algorithms and techniques
+        - Neural network architectures and training
+        - Natural language processing and computer vision
+        - AI programming frameworks and libraries
+        - AI ethics and responsible AI development
+        - AI research and recent advances
+        - Technical implementation of AI systems
+        
+        Examples of questions that are NOT about AI and should receive "NOT_AI_TOPIC":
+        - "What's the weather like today?"
+        - "Can you help with my math homework?"
+        - "Write me a poem about love"
+        - "Who won the World Cup?"
+        - "Give me a recipe for chocolate cake"
+        - "What's your opinion on politics?"
+        
+        This filtering is critical. ONLY provide substantive answers to AI-specific questions.
+        '''
 
         # Login to Hugging Face
-        login(os.getenv('HUGGING_FACE_HUB_TOKEN'))
-
-        # Initialize embedding model
-        self.embedding_model = SentenceTransformer(os.getenv('EMBEDDING_MODEL'))
+        login(huggingface_token)
 
         # Initialize the model
-        self.model_name = os.getenv('LLM_MODEL')
+        self.model_name = llm_model
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)        
         
         # 4-bit quantization
@@ -44,12 +67,37 @@ class AIAgent:
             torch_dtype=torch.bfloat16,
             device_map='auto'
         )
-
-        # initialize threshold for similarity
-        self.similarity_threshold = float(os.getenv('SIMILARITY_THRESHOLD', 0.85))
-
-    def generate_embedding(self, text: str) -> list[float]:
-        ''' Generate an embedding for a given text '''
-        return self.embedding_model.encode(text).tolist()
     
-    
+    def generate_response(self, question: str) -> str:
+        ''' Generate a response to a question '''
+        # Generate a response to a question
+
+        # Two-step prompt approach
+        # 1. Filter the question
+        filter_prompt = f'''
+        <s>[INST] <<SYS>>{self.filtering_instructions}<</SYS>>
+          User Question: {question}
+
+        Is this question about AI? Remember, you must ONLY respond with "NOT_AI_TOPIC" if the question is not about AI.
+        [/INST]
+        '''
+        # Check if the question is about AI related topics
+        filter_response = self.llm(filter_prompt, max_new_tokens=64, temperature=0.1)[0]['generated_text']
+        filter_response = filter_response.split("[/INST]")[1].strip()
+
+        if 'NOT_AI_TOPIC' in filter_response:
+            return None
+        
+        # 2. Generate a response
+        prompt = f'''
+        <s>[INST] <<SYS>>{self.persona}<</SYS>>
+         Question about AI: {question}
+         [/INST]
+        '''
+        # Generate a response to the question using the model
+        response = self.llm(prompt, max_new_tokens=512)[0]['generated_text']
+        # Extract the answer from the response
+        answer = response.split("[/INST]")[1].strip()
+
+        return answer
+            

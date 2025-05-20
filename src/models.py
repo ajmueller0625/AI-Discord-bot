@@ -10,9 +10,9 @@ class Base(DeclarativeBase):
 class Question(Base):
     __tablename__ = 'questions'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     question: Mapped[str] = mapped_column(Text, nullable=False)
-    question_embeddings: Mapped[list[float]] = mapped_column(Vector(384), nullable=False)
+    question_embeddings: Mapped[list[float]] = mapped_column(Vector(dim=384), nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
 
     #Relationship
@@ -21,7 +21,7 @@ class Question(Base):
 class Answer(Base):
     __tablename__ = 'answers'
 
-    id: Mapped[int] = mapped_column(primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     question_id: Mapped[int] = mapped_column(ForeignKey('questions.id'), nullable=False)
     answer: Mapped[str] = mapped_column(Text, nullable=False)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False)
