@@ -71,4 +71,4 @@ def get_db():
         if session:
             logger.info('Closing the database session')
             session.close()
-            logger.info('Database session closed successfully')
+            logger.debug('Database session closed successfully')
