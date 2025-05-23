@@ -39,7 +39,6 @@ def main():
             logger.info('Getting the database session...')
             db_session: Session = next(get_db())
 
-
             # Get necessary parameters from environment variables
             discord_token = getenv('DISCORD_AI_BOT_TOKEN')
             huggingface_token = getenv('HUGGING_FACE_HUB_TOKEN')
@@ -47,18 +46,17 @@ def main():
             llm_model = getenv('LLM_MODEL')
 
             # Get the similarity threshold
-            threshold = float(getenv('SIMILARITY_THRESHOLD', '0.85'))
+            threshold = float(getenv('SIMILARITY_THRESHOLD', '0.90'))
             try:
                 threshold = float(threshold)
                 if threshold < 0.0 or threshold > 1.0:
                     raise ValueError(f'Similarity threshold must be between 0.0 and 1.0, got {threshold}')
             except ValueError as e:
-                logger.error(f'Invalid similarity threshold: {e}, using default value 0.85')
-                threshold = 0.85
+                logger.error(f'Invalid similarity threshold: {e}, using default value 0.90')
+                threshold = 0.90
 
             # Log configuration (without sensitive information)
             logger.info(f'Configuration: embedding_model={embedding_model}, llm_model={llm_model}, threshold={threshold}')
-
 
             # Initialize the bot
             logger.info('Initializing the bot...')

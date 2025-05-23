@@ -31,6 +31,7 @@ class RAGSystem:
         # Initialize threshold for similarity
         self.similarity_threshold = threshold
         self.logger.info(f'Threshold similarity is set to: {self.similarity_threshold}')
+
         
     def generate_embedding(self, text: str) -> list[float]:
         ''' Generate an embedding for a given text '''

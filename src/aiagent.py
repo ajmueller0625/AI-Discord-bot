@@ -102,8 +102,8 @@ class AIAgent:
                     {question} [/INST]'''
                 
                 try:
-                    # Reduced tokens for faster response
-                    response = self.llm(prompt, max_new_tokens=256, temperature=0.3, do_sample=True)[0]['generated_text']
+                    # Large tokens for better response
+                    response = self.llm(prompt, max_new_tokens=512, temperature=0.7, do_sample=True)[0]['generated_text']
                     answer = response.split("[/INST]")[1].strip()
                     self.logger.info(f"Fast response generated, length: {len(answer)} characters")
                     return answer
@@ -137,8 +137,8 @@ class AIAgent:
             
             self.logger.info('Generating main response')
             try:
-                # Reduced tokens for faster generation
-                response = self.llm(prompt, max_new_tokens=300, temperature=0.3, do_sample=True)[0]['generated_text']
+                # Larger tokens for better response
+                response = self.llm(prompt, max_new_tokens=768, temperature=0.7, do_sample=True)[0]['generated_text']
                 answer = response.split("[/INST]")[1].strip()
                 self.logger.info(f'Response generated, length: {len(answer)} characters')
                 return answer
